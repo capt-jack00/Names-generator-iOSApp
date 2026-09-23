@@ -7,7 +7,7 @@ iOS app for generating names, built with SwiftUI.
 ## Requirements
 
 - Xcode 27 or later
-- iOS 27.0+ deployment target
+- iOS 26.0+ deployment target
 - Swift 5
 
 ## Getting started

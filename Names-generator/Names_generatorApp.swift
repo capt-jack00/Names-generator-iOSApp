@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct Names_generatorApp: App {
@@ -13,5 +14,6 @@ struct Names_generatorApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: NameEntry.self)
     }
 }
