@@ -1,0 +1,24 @@
+# <type>(<optional scope>): <short summary, imperative, no period, ≤50 chars>
+#
+# <body: what changed and WHY, wrapped at 72 chars; optional for small changes>
+#
+# <footer: BREAKING CHANGE: ..., Refs #123, Co-Authored-By: ...>
+#
+# Types:
+#   feat      new feature for the user
+#   fix       bug fix
+#   refactor  code change that neither fixes a bug nor adds a feature
+#   style     visual/UI styling changes (colours, fonts, spacing)
+#   docs      documentation only (README, comments)
+#   test      adding or updating tests
+#   chore     tooling, config, dependencies, project settings
+#   perf      performance improvement
+#
+# Scopes (optional): ui, data, model, logic, project
+#
+# Examples:
+#   feat(data): store names in SwiftData
+#   fix(ui): prevent adding empty names
+#   refactor(logic): move duplicate check into view model
+#
+# Lines starting with '#' are ignored.
