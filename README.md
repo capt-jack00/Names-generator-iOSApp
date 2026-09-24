@@ -26,7 +26,10 @@ Select an iOS simulator and press **⌘R** to build and run.
 Names-generator/
 ├── Names-generator/              # App sources
 │   ├── Names_generatorApp.swift  # App entry point
-│   ├── ContentView.swift         # Root view
+│   ├── ContentView.swift         # Root view (layout only)
+│   ├── Models/                   # SwiftData models
+│   ├── ViewModels/               # App logic / functionality
+│   ├── Styles/                   # Reusable view modifiers (styling)
 │   └── Assets.xcassets           # Colors, app icon
 └── Names-generator.xcodeproj     # Xcode project
 ```

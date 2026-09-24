@@ -12,33 +12,22 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \NameEntry.createdAt, order: .reverse) private var names: [NameEntry]
 
-    @State private var newName = ""
-
-    private var trimmedName: String {
-        newName.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var isDuplicate: Bool {
-        names.contains { $0.value.caseInsensitiveCompare(trimmedName) == .orderedSame }
-    }
+    @State private var viewModel = NamesViewModel()
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
                     HStack {
-                        TextField("New name", text: $newName)
-                            .textInputAutocapitalization(.words)
-                            .autocorrectionDisabled()
-                            .submitLabel(.done)
+                        TextField("New name", text: $viewModel.newName)
+                            .nameInputStyle()
                             .onSubmit(addName)
                         Button("Add", action: addName)
-                            .disabled(trimmedName.isEmpty || isDuplicate)
+                            .disabled(!viewModel.canAdd(to: names))
                     }
-                    if isDuplicate {
+                    if viewModel.isDuplicate(in: names) {
                         Text("This name already exists.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .hintTextStyle()
                     }
                 }
 
@@ -54,15 +43,11 @@ struct ContentView: View {
     }
 
     private func addName() {
-        guard !trimmedName.isEmpty, !isDuplicate else { return }
-        modelContext.insert(NameEntry(value: trimmedName))
-        newName = ""
+        viewModel.addName(to: names, in: modelContext)
     }
 
     private func deleteNames(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(names[index])
-        }
+        viewModel.deleteNames(at: offsets, from: names, in: modelContext)
     }
 }
 
