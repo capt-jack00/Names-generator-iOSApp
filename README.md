@@ -29,6 +29,7 @@ Names-generator/
 │   ├── ContentView.swift         # Root view (layout only)
 │   ├── Models/                   # SwiftData models
 │   ├── ViewModels/               # App logic / functionality
+│   ├── Views/                    # Reusable view components
 │   ├── Styles/                   # Reusable view modifiers (styling)
 │   └── Assets.xcassets           # Colors, app icon
 └── Names-generator.xcodeproj     # Xcode project

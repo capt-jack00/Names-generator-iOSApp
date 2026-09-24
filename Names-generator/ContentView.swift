@@ -18,11 +18,37 @@ struct ContentView: View {
         NavigationStack {
             List {
                 Section {
+                    HStack(spacing: 12) {
+                        Button {
+                            // Settings added in a later step.
+                        } label: {
+                            Image(systemName: "gearshape.fill")
+                        }
+                        .primaryActionStyle()
+                        .accessibilityLabel("Settings")
+
+                        Button {
+                            // Random pick logic added in the next step.
+                        } label: {
+                            Label("Pick a random name", systemImage: "shuffle")
+                        }
+                        .primaryActionStyle()
+                        .disabled(names.isEmpty)
+                    }
+                    .plainListRowStyle()
+
+                    PickedNameCard(name: nil)
+                        .plainListRowStyle()
+                }
+
+                Section {
                     HStack {
                         TextField("New name", text: $viewModel.newName)
                             .nameInputStyle()
                             .onSubmit(addName)
-                        Button("Add", action: addName)
+                        Button("Add", systemImage: "plus.circle.fill", action: addName)
+                            .labelStyle(.iconOnly)
+                            .font(.title2)
                             .disabled(!viewModel.canAdd(to: names))
                     }
                     if viewModel.isDuplicate(in: names) {
@@ -32,13 +58,21 @@ struct ContentView: View {
                 }
 
                 Section("Names (\(names.count))") {
-                    ForEach(names) { entry in
-                        Text(entry.value)
+                    if names.isEmpty {
+                        ContentUnavailableView(
+                            "No names yet",
+                            systemImage: "person.2",
+                            description: Text("Add a name above to get started.")
+                        )
+                    } else {
+                        ForEach(names) { entry in
+                            NameRow(name: entry.value)
+                        }
+                        .onDelete(perform: deleteNames)
                     }
-                    .onDelete(perform: deleteNames)
                 }
             }
-            .navigationTitle("Names")
+            .screenListStyle()
         }
     }
 
