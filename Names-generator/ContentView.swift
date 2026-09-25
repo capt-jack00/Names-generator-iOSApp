@@ -40,7 +40,11 @@ struct ContentView: View {
                     }
                     .plainListRowStyle()
 
-                    PickedNameCard(names: viewModel.pickedNames)
+                    // Labels are re-read on every render, so edits in Settings apply when the sheet closes.
+                    PickedNameCard(lines: PickResultFormatter.lines(
+                        names: viewModel.pickedNames,
+                        labels: AppSettings.loadSlotLabels()
+                    ))
                         .plainListRowStyle()
                 }
 

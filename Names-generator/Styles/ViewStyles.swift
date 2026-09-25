@@ -108,6 +108,17 @@ struct PickerPlaceholderStyle: ViewModifier {
     }
 }
 
+struct ShareButtonStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.subheadline.weight(.semibold))
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .controlSize(.small)
+            .padding(.top, 12)
+    }
+}
+
 /// Stretches a label (icon + title) across the full button width.
 struct FullWidthLabelStyle: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -192,6 +203,10 @@ extension View {
 
     func pickerPlaceholderStyle() -> some View {
         modifier(PickerPlaceholderStyle())
+    }
+
+    func shareButtonStyle() -> some View {
+        modifier(ShareButtonStyle())
     }
 
     func primaryActionStyle() -> some View {

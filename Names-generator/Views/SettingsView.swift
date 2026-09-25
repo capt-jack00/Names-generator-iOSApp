@@ -14,8 +14,7 @@ struct SettingsView: View {
     @AppStorage(AppSettings.canRepeatNamesKey) private var canRepeatNames = AppSettings.defaultCanRepeatNames
     @AppStorage(AppSettings.autoCapitalizeNamesKey) private var autoCapitalizeNames = AppSettings.defaultAutoCapitalizeNames
 
-    // UI only for now: labels are not saved yet.
-    @State private var slotLabels: [String] = []
+    @State private var slotLabels = AppSettings.loadSlotLabels()
     @State private var isShowingLabels = false
 
     private var pickCountRange: ClosedRange<Int>? {
@@ -44,14 +43,14 @@ struct SettingsView: View {
 
                 Section {
                     DisclosureGroup(isExpanded: $isShowingLabels) {
-                        ForEach(slotLabels.indices, id: \.self) { index in
+                        ForEach(0..<pickCount, id: \.self) { index in
                             LabeledContent("Name \(index + 1)") {
-                                TextField("e.g. Monday", text: $slotLabels[index])
+                                TextField("e.g. Monday", text: labelBinding(at: index))
                                     .slotLabelFieldStyle()
                             }
                         }
                     } label: {
-                        LabeledContent("Labels", value: "\(slotLabels.count)")
+                        LabeledContent("Labels", value: "\(pickCount)")
                     }
                 } footer: {
                     Text("Optional. Each picked name is shown next to its label, e.g. \"Monday: Anna\".")
@@ -70,21 +69,23 @@ struct SettingsView: View {
                     Button("Done") { dismiss() }
                 }
             }
-            .onAppear {
-                clampPickCount()
-                resizeSlotLabels()
-            }
-            .onChange(of: pickCount) { resizeSlotLabels() }
+            .onAppear(perform: clampPickCount)
+            .onChange(of: slotLabels) { AppSettings.saveSlotLabels(slotLabels) }
         }
     }
 
-    /// One label per picked name; keeps already typed labels when the amount changes.
-    private func resizeSlotLabels() {
-        if slotLabels.count < pickCount {
-            slotLabels += Array(repeating: "", count: pickCount - slotLabels.count)
-        } else if slotLabels.count > pickCount {
-            slotLabels.removeLast(slotLabels.count - pickCount)
-        }
+    /// Label for slot `index`. Slots without a stored label read as empty; the list
+    /// grows on first edit. Labels beyond the pick amount are never removed.
+    private func labelBinding(at index: Int) -> Binding<String> {
+        Binding(
+            get: { index < slotLabels.count ? slotLabels[index] : "" },
+            set: { newValue in
+                if index >= slotLabels.count {
+                    slotLabels += Array(repeating: "", count: index - slotLabels.count + 1)
+                }
+                slotLabels[index] = newValue
+            }
+        )
     }
 
     /// Keeps the stored value valid after names were deleted.

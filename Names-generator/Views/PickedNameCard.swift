@@ -6,7 +6,8 @@
 import SwiftUI
 
 struct PickedNameCard: View {
-    let names: [String]
+    /// Display lines, e.g. "Anna" or "Monday: Anna".
+    let lines: [String]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,11 +18,16 @@ struct PickedNameCard: View {
             Text("Picked name")
                 .pickerCaptionStyle()
 
-            if !names.isEmpty {
-                ForEach(Array(names.enumerated()), id: \.offset) { _, name in
-                    Text(name)
+            if !lines.isEmpty {
+                ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                    Text(line)
                         .pickedNameStyle()
                 }
+
+                ShareLink(item: PickResultFormatter.shareText(lines: lines)) {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+                .shareButtonStyle()
             } else {
                 Text("Tap the button above\nto pick a random name")
                     .pickerPlaceholderStyle()
@@ -32,11 +38,16 @@ struct PickedNameCard: View {
 }
 
 #Preview("Picked") {
-    PickedNameCard(names: ["Celina"])
+    PickedNameCard(lines: ["Celina"])
+        .padding()
+}
+
+#Preview("Labelled") {
+    PickedNameCard(lines: ["Monday: Anna", "2: Bartek", "Wednesday: Celina"])
         .padding()
 }
 
 #Preview("Empty") {
-    PickedNameCard(names: [])
+    PickedNameCard(lines: [])
         .padding()
 }
