@@ -42,6 +42,23 @@ struct ScreenListStyle: ViewModifier {
     }
 }
 
+/// Settings form without the large default gap below the navigation bar.
+struct SettingsFormStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .contentMargins(.top, 8, for: .scrollContent)
+    }
+}
+
+/// Text field for a pick label (e.g. "Monday"), right-aligned like iOS Settings values.
+struct SlotLabelFieldStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .nameInputStyle()
+            .multilineTextAlignment(.trailing)
+    }
+}
+
 // MARK: - Random pick
 
 struct PickerCardStyle: ViewModifier {
@@ -50,17 +67,10 @@ struct PickerCardStyle: ViewModifier {
             .padding(.vertical, 28)
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity)
+            // Same colour as list rows, so the card matches the rest of the screen (adapts to dark mode).
             .background(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(LinearGradient(
-                        colors: [Color.accentColor.opacity(0.25), Color.accentColor.opacity(0.08)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .strokeBorder(Color.accentColor.opacity(0.3), lineWidth: 1)
+                    .fill(Color(.secondarySystemGroupedBackground))
             )
     }
 }
@@ -156,6 +166,14 @@ struct InitialBadgeStyle: ViewModifier {
 extension View {
     func screenListStyle() -> some View {
         modifier(ScreenListStyle())
+    }
+
+    func settingsFormStyle() -> some View {
+        modifier(SettingsFormStyle())
+    }
+
+    func slotLabelFieldStyle() -> some View {
+        modifier(SlotLabelFieldStyle())
     }
 
     func pickerCardStyle() -> some View {

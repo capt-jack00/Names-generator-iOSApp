@@ -13,6 +13,7 @@ struct ContentView: View {
     @Query(sort: \NameEntry.createdAt, order: .reverse) private var names: [NameEntry]
 
     @State private var viewModel = NamesViewModel()
+    @State private var isShowingSettings = false
 
     var body: some View {
         NavigationStack {
@@ -20,7 +21,7 @@ struct ContentView: View {
                 Section {
                     HStack(spacing: 12) {
                         Button {
-                            // Settings added in a later step.
+                            isShowingSettings = true
                         } label: {
                             Image(systemName: "gearshape.fill")
                         }
@@ -73,6 +74,9 @@ struct ContentView: View {
                 }
             }
             .screenListStyle()
+            .sheet(isPresented: $isShowingSettings) {
+                SettingsView(nameCount: names.count)
+            }
         }
     }
 
