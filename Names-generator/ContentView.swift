@@ -15,6 +15,10 @@ struct ContentView: View {
     @State private var viewModel = NamesViewModel()
     @State private var isShowingSettings = false
 
+    @AppStorage(AppSettings.pickCountKey) private var pickCount = AppSettings.defaultPickCount
+    @AppStorage(AppSettings.canRepeatNamesKey) private var canRepeatNames = AppSettings.defaultCanRepeatNames
+    @AppStorage(AppSettings.autoCapitalizeNamesKey) private var autoCapitalizeNames = AppSettings.defaultAutoCapitalizeNames
+
     var body: some View {
         NavigationStack {
             List {
@@ -28,9 +32,7 @@ struct ContentView: View {
                         .primaryActionStyle()
                         .accessibilityLabel("Settings")
 
-                        Button {
-                            // Random pick logic added in the next step.
-                        } label: {
+                        Button(action: pickRandomNames) {
                             Label("Pick a random name", systemImage: "shuffle")
                         }
                         .primaryActionStyle()
@@ -38,21 +40,21 @@ struct ContentView: View {
                     }
                     .plainListRowStyle()
 
-                    PickedNameCard(name: nil)
+                    PickedNameCard(names: viewModel.pickedNames)
                         .plainListRowStyle()
                 }
 
                 Section {
                     HStack {
                         TextField("New name", text: $viewModel.newName)
-                            .nameInputStyle()
+                            .nameInputStyle(autoCapitalize: autoCapitalizeNames)
                             .onSubmit(addName)
                         Button("Add", systemImage: "plus.circle.fill", action: addName)
                             .labelStyle(.iconOnly)
                             .font(.title2)
-                            .disabled(!viewModel.canAdd(to: names))
+                            .disabled(!viewModel.canAdd(to: names, allowDuplicates: canRepeatNames))
                     }
-                    if viewModel.isDuplicate(in: names) {
+                    if !canRepeatNames && viewModel.isDuplicate(in: names) {
                         Text("This name already exists.")
                             .hintTextStyle()
                     }
@@ -81,7 +83,15 @@ struct ContentView: View {
     }
 
     private func addName() {
-        viewModel.addName(to: names, in: modelContext)
+        viewModel.addName(to: names, in: modelContext, allowDuplicates: canRepeatNames, autoCapitalize: autoCapitalizeNames)
+    }
+
+    private func pickRandomNames() {
+        // Stored amount can be too high if names were deleted since it was set.
+        let maxCount = AppSettings.pickCountRange(nameCount: names.count)?.upperBound ?? 1
+        withAnimation {
+            viewModel.pickRandomNames(from: names, count: min(pickCount, maxCount))
+        }
     }
 
     private func deleteNames(at offsets: IndexSet) {

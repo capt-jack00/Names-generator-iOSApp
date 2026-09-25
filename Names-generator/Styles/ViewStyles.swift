@@ -6,9 +6,11 @@
 import SwiftUI
 
 struct NameInputStyle: ViewModifier {
+    var autoCapitalize = true
+
     func body(content: Content) -> some View {
         content
-            .textInputAutocapitalization(.words)
+            .textInputAutocapitalization(autoCapitalize ? .words : .never)
             .autocorrectionDisabled()
             .submitLabel(.done)
     }
@@ -23,8 +25,8 @@ struct HintTextStyle: ViewModifier {
 }
 
 extension View {
-    func nameInputStyle() -> some View {
-        modifier(NameInputStyle())
+    func nameInputStyle(autoCapitalize: Bool = true) -> some View {
+        modifier(NameInputStyle(autoCapitalize: autoCapitalize))
     }
 
     func hintTextStyle() -> some View {
