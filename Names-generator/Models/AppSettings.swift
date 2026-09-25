@@ -7,12 +7,14 @@ import Foundation
 
 /// UserDefaults keys and defaults for user settings (used with @AppStorage).
 enum AppSettings {
+    static let fontSizeKey = "fontSize"
     static let pickCountKey = "pickCount"
     static let canRepeatNamesKey = "canRepeatNames"
     static let autoCapitalizeNamesKey = "autoCapitalizeNames"
     static let slotLabelsKey = "slotLabels"
 
     static let defaultPickCount = 1
+    static let defaultFontSize = 30
     static let defaultCanRepeatNames = false
     static let defaultAutoCapitalizeNames = true
 

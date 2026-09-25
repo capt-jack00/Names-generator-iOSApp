@@ -10,6 +10,7 @@ struct SettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    @AppStorage(AppSettings.fontSizeKey) private var fontSize = AppSettings.defaultFontSize
     @AppStorage(AppSettings.pickCountKey) private var pickCount = AppSettings.defaultPickCount
     @AppStorage(AppSettings.canRepeatNamesKey) private var canRepeatNames = AppSettings.defaultCanRepeatNames
     @AppStorage(AppSettings.autoCapitalizeNamesKey) private var autoCapitalizeNames = AppSettings.defaultAutoCapitalizeNames
@@ -59,6 +60,9 @@ struct SettingsView: View {
                 Section {
                     Toggle("Can repeat names", isOn: $canRepeatNames)
                     Toggle("Auto-capitalize names", isOn: $autoCapitalizeNames)
+                    Stepper(value: $fontSize, in: 10...40) {
+                        LabeledContent("Font size", value: "\(fontSize)")
+                    }
                 }
             }
             .settingsFormStyle()

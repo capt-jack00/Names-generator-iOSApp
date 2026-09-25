@@ -88,9 +88,12 @@ struct PickerCaptionStyle: ViewModifier {
 }
 
 struct PickedNameStyle: ViewModifier {
+    /// Set by the user in Settings; re-renders the card when it changes.
+    @AppStorage(AppSettings.fontSizeKey) private var fontSize = AppSettings.defaultFontSize
+
     func body(content: Content) -> some View {
         content
-            .font(.system(size: 40, weight: .bold, design: .rounded))
+            .font(.system(size: CGFloat(fontSize), weight: .bold, design: .rounded))
             .foregroundStyle(.primary)
             .multilineTextAlignment(.center)
             .lineLimit(2)
