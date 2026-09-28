@@ -118,7 +118,7 @@ struct ShareButtonStyle: ViewModifier {
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
             .controlSize(.small)
-            .padding(.top, 12)
+            .padding(12)
     }
 }
 
