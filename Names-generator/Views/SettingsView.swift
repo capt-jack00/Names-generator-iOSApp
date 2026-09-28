@@ -58,6 +58,18 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    // Also removes labels beyond the pick amount; the change is saved by onChange below.
+                    Button {
+                        slotLabels.removeAll()
+                    } label: {
+                        Label("Clear labels", systemImage: "trash")
+                    }
+                    .primaryActionStyle()
+                    .disabled(slotLabels.allSatisfy(\.isEmpty))
+                    .plainListRowStyle()
+                }
+
+                Section {
                     Toggle("Can repeat names", isOn: $canRepeatNames)
                     Toggle("Auto-capitalize names", isOn: $autoCapitalizeNames)
                     Stepper(value: $fontSize, in: 10...40) {
