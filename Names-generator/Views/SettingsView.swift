@@ -17,6 +17,8 @@ struct SettingsView: View {
 
     @State private var slotLabels = AppSettings.loadSlotLabels()
     @State private var isShowingLabels = false
+    // UI only for now: not saved and not used when picking.
+    @State private var namesPerLabel = 1
 
     private var pickCountRange: ClosedRange<Int>? {
         AppSettings.pickCountRange(nameCount: nameCount)
@@ -55,6 +57,14 @@ struct SettingsView: View {
                     }
                 } footer: {
                     Text("Optional. Each picked name is shown next to its label, e.g. \"Monday: Anna\".")
+                }
+
+                Section {
+                    Stepper(value: $namesPerLabel, in: 1...10) {
+                        LabeledContent("Names per label", value: "\(namesPerLabel)")
+                    }
+                } footer: {
+                    Text("How many names are picked for each label, e.g. \"Monday: Anna, Bartek\".")
                 }
 
                 Section {
