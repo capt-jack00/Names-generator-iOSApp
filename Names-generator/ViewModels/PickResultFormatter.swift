@@ -5,12 +5,14 @@
 
 import Foundation
 
-/// Turns picked names into display lines like "Monday: Anna" using the labels from Settings.
+/// Turns picked names into display lines like "Monday: Anna, Bartek" using the labels from Settings.
 enum PickResultFormatter {
+    /// One line per label; names picked for the same label are joined with ", ".
     /// - If no label is typed for any picked slot, names are shown as they are.
-    /// - Otherwise every name gets its slot's label; empty labels fall back to
-    ///   the slot number, e.g. ["Monday: Anna", "2: Bartek", "Wednesday: Celina"].
-    static func lines(names: [String], labels: [String]) -> [String] {
+    /// - Otherwise every line gets its slot's label; empty labels fall back to
+    ///   the slot number, e.g. ["Monday: Anna, Bartek", "2: Celina, Dawid"].
+    static func lines(groups: [[String]], labels: [String]) -> [String] {
+        let names = groups.map { $0.joined(separator: ", ") }
         let slotLabels = names.indices.map { index in
             index < labels.count ? labels[index].trimmingCharacters(in: .whitespacesAndNewlines) : ""
         }

@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var isShowingSettings = false
 
     @AppStorage(AppSettings.pickCountKey) private var pickCount = AppSettings.defaultPickCount
+    @AppStorage(AppSettings.namesPerLabelKey) private var namesPerLabel = AppSettings.defaultNamesPerLabel
     @AppStorage(AppSettings.canRepeatNamesKey) private var canRepeatNames = AppSettings.defaultCanRepeatNames
     @AppStorage(AppSettings.autoCapitalizeNamesKey) private var autoCapitalizeNames = AppSettings.defaultAutoCapitalizeNames
 
@@ -42,7 +43,7 @@ struct ContentView: View {
 
                     // Labels are re-read on every render, so edits in Settings apply when the sheet closes.
                     PickedNameCard(lines: PickResultFormatter.lines(
-                        names: viewModel.pickedNames,
+                        groups: viewModel.pickedNames,
                         labels: AppSettings.loadSlotLabels()
                     ))
                         .plainListRowStyle()
@@ -64,6 +65,7 @@ struct ContentView: View {
                     }
                 }
 
+                //TODO: Add option to search names (searchbar)
                 Section("Names (\(names.count))") {
                     if names.isEmpty {
                         ContentUnavailableView(
@@ -91,10 +93,11 @@ struct ContentView: View {
     }
 
     private func pickRandomNames() {
-        // Stored amount can be too high if names were deleted since it was set.
-        let maxCount = AppSettings.pickCountRange(nameCount: names.count)?.upperBound ?? 1
+        // Stored amounts can be too high if names were deleted since they were set.
+        let labelCount = min(pickCount, AppSettings.pickCountRange(nameCount: names.count)?.upperBound ?? 1)
+        let maxPerLabel = AppSettings.namesPerLabelRange(nameCount: names.count, pickCount: labelCount)?.upperBound ?? 1
         withAnimation {
-            viewModel.pickRandomNames(from: names, count: min(pickCount, maxCount))
+            viewModel.pickRandomNames(from: names, labelCount: labelCount, namesPerLabel: min(namesPerLabel, maxPerLabel))
         }
     }
 

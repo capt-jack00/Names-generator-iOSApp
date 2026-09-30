@@ -10,7 +10,8 @@ import SwiftData
 @Observable
 final class NamesViewModel {
     var newName = ""
-    var pickedNames: [String] = []
+    /// Picked names grouped by label, e.g. [["Anna", "Bartek"], ["Celina", "Dawid"]].
+    var pickedNames: [[String]] = []
 
     var trimmedName: String {
         newName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -43,15 +44,19 @@ final class NamesViewModel {
         return result
     }
 
-    /// Picks `count` different names at random, favouring names that haven't been picked for a while.
-    func pickRandomNames(from names: [NameEntry], count: Int) {
-        let picked = WeightedPicker.pick(from: names, count: count) { 1 + $0.picksSinceLastChosen }
-        let pickedIDs = Set(picked.map(\.persistentModelID))
+    /// Picks `namesPerLabel` different names for each of `labelCount` labels, favouring names
+    /// that haven't been picked for a while. A name is never picked for two labels in a row
+    /// and only repeats once every name has been used.
+    func pickRandomNames(from names: [NameEntry], labelCount: Int, namesPerLabel: Int) {
+        let picked = WeightedPicker.pickGroups(from: names, groupCount: labelCount, groupSize: namesPerLabel) {
+            1 + $0.picksSinceLastChosen
+        }
+        let pickedIDs = Set(picked.joined().map(\.persistentModelID))
 
         for entry in names {
             entry.picksSinceLastChosen = pickedIDs.contains(entry.persistentModelID) ? 0 : entry.picksSinceLastChosen + 1
         }
-        pickedNames = picked.map(\.value)
+        pickedNames = picked.map { $0.map(\.value) }
     }
 
     func deleteNames(at offsets: IndexSet, from names: [NameEntry], in context: ModelContext) {

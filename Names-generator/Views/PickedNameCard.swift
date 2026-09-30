@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct PickedNameCard: View {
-    /// Display lines, e.g. "Anna" or "Monday: Anna".
+    /// Display lines, e.g. "Anna", "Monday: Anna" or "Monday: Anna, Bartek".
     let lines: [String]
 
     var body: some View {
@@ -44,6 +44,11 @@ struct PickedNameCard: View {
 
 #Preview("Labelled") {
     PickedNameCard(lines: ["Monday: Anna", "2: Bartek", "Wednesday: Celina"])
+        .padding()
+}
+
+#Preview("Several per label") {
+    PickedNameCard(lines: ["Monday: Anna, Bartek", "Tuesday: Celina, Dawid", "Wednesday: Ewa, Anna"])
         .padding()
 }
 

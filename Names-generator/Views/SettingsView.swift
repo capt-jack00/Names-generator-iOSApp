@@ -12,24 +12,35 @@ struct SettingsView: View {
 
     @AppStorage(AppSettings.fontSizeKey) private var fontSize = AppSettings.defaultFontSize
     @AppStorage(AppSettings.pickCountKey) private var pickCount = AppSettings.defaultPickCount
+    @AppStorage(AppSettings.namesPerLabelKey) private var namesPerLabel = AppSettings.defaultNamesPerLabel
     @AppStorage(AppSettings.canRepeatNamesKey) private var canRepeatNames = AppSettings.defaultCanRepeatNames
     @AppStorage(AppSettings.autoCapitalizeNamesKey) private var autoCapitalizeNames = AppSettings.defaultAutoCapitalizeNames
 
     @State private var slotLabels = AppSettings.loadSlotLabels()
     @State private var isShowingLabels = false
-    // UI only for now: not saved and not used when picking.
-    @State private var namesPerLabel = 1
 
     private var pickCountRange: ClosedRange<Int>? {
         AppSettings.pickCountRange(nameCount: nameCount)
     }
 
+    private var namesPerLabelRange: ClosedRange<Int>? {
+        AppSettings.namesPerLabelRange(nameCount: nameCount, pickCount: pickCount)
+    }
+
     private var pickCountFooter: String {
         if let pickCountRange {
-            "Must be lower than the number of names (\(nameCount)). Maximum: \(pickCountRange.upperBound)."
+            "Names repeat only when there aren't enough (\(nameCount)) for every label, and never in two labels in a row. Maximum: \(pickCountRange.upperBound)."
         } else {
             "Add at least 2 names to change this."
         }
+    }
+
+    private var namesPerLabelFooter: String {
+        guard let namesPerLabelRange else { return "Add at least 2 names to change this." }
+        let rule = pickCount > 1
+            ? "A name can't be picked for two labels in a row, so this can be at most half the names (\(nameCount))."
+            : "Must be lower than the number of names (\(nameCount))."
+        return "How many names are picked for each label, e.g. \"Monday: Anna, Bartek\". \(rule) Maximum: \(namesPerLabelRange.upperBound)."
     }
 
     var body: some View {
@@ -60,11 +71,12 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Stepper(value: $namesPerLabel, in: 1...10) {
+                    Stepper(value: $namesPerLabel, in: namesPerLabelRange ?? 1...1) {
                         LabeledContent("Names per label", value: "\(namesPerLabel)")
                     }
+                    .disabled(namesPerLabelRange == nil)
                 } footer: {
-                    Text("How many names are picked for each label, e.g. \"Monday: Anna, Bartek\".")
+                    Text(namesPerLabelFooter)
                 }
 
                 Section {
@@ -82,6 +94,7 @@ struct SettingsView: View {
                 Section {
                     Toggle("Can repeat names", isOn: $canRepeatNames)
                     Toggle("Auto-capitalize names", isOn: $autoCapitalizeNames)
+                    //TODO: Allow the number to be typed in by numpad
                     Stepper(value: $fontSize, in: 10...40) {
                         LabeledContent("Font size", value: "\(fontSize)")
                     }
@@ -96,6 +109,8 @@ struct SettingsView: View {
                 }
             }
             .onAppear(perform: clampPickCount)
+            // Going from 1 label to more lowers the maximum names per label.
+            .onChange(of: pickCount, clampNamesPerLabel)
             .onChange(of: slotLabels) { AppSettings.saveSlotLabels(slotLabels) }
         }
     }
@@ -114,13 +129,22 @@ struct SettingsView: View {
         )
     }
 
-    /// Keeps the stored value valid after names were deleted.
+    /// Keeps the stored values valid after names were deleted.
     private func clampPickCount() {
-        guard let pickCountRange else {
+        if let pickCountRange {
+            pickCount = min(max(pickCount, pickCountRange.lowerBound), pickCountRange.upperBound)
+        } else {
             pickCount = AppSettings.defaultPickCount
+        }
+        clampNamesPerLabel()
+    }
+
+    private func clampNamesPerLabel() {
+        guard let namesPerLabelRange else {
+            namesPerLabel = AppSettings.defaultNamesPerLabel
             return
         }
-        pickCount = min(max(pickCount, pickCountRange.lowerBound), pickCountRange.upperBound)
+        namesPerLabel = min(max(namesPerLabel, namesPerLabelRange.lowerBound), namesPerLabelRange.upperBound)
     }
 }
 
