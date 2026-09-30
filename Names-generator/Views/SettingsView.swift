@@ -18,6 +18,9 @@ struct SettingsView: View {
 
     @State private var slotLabels = AppSettings.loadSlotLabels()
     @State private var isShowingLabels = false
+    /// Typed font size; saved (clamped) when the field loses focus.
+    @State private var fontSizeText = ""
+    @FocusState private var isFontSizeFocused: Bool
 
     private var pickCountRange: ClosedRange<Int>? {
         AppSettings.pickCountRange(nameCount: nameCount)
@@ -94,9 +97,12 @@ struct SettingsView: View {
                 Section {
                     Toggle("Can repeat names", isOn: $canRepeatNames)
                     Toggle("Auto-capitalize names", isOn: $autoCapitalizeNames)
-                    //TODO: Allow the number to be typed in by numpad
-                    Stepper(value: $fontSize, in: 10...40) {
-                        LabeledContent("Font size", value: "\(fontSize)")
+                    Stepper(value: $fontSize, in: AppSettings.fontSizeRange) {
+                        LabeledContent("Font size") {
+                            TextField("\(fontSize)", text: $fontSizeText)
+                                .numberFieldStyle()
+                                .focused($isFontSizeFocused)
+                        }
                     }
                 }
             }
@@ -107,8 +113,27 @@ struct SettingsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
+                // The number pad has no return key.
+                ToolbarItemGroup(placement: .keyboard) {
+                    if isFontSizeFocused {
+                        Spacer()
+                        Button("Done") { isFontSizeFocused = false }
+                    }
+                }
             }
-            .onAppear(perform: clampPickCount)
+            .onAppear {
+                clampPickCount()
+                fontSizeText = "\(fontSize)"
+            }
+            .onDisappear(perform: commitFontSize)
+            .onChange(of: isFontSizeFocused) { if !isFontSizeFocused { commitFontSize() } }
+            // Keeps the field in sync when the stepper is used.
+            .onChange(of: fontSize) { fontSizeText = "\(fontSize)" }
+            // The number pad doesn't stop pasted text or a hardware keyboard, so drop anything but digits.
+            .onChange(of: fontSizeText) {
+                let digits = fontSizeText.filter { $0.isASCII && $0.isNumber }
+                if digits != fontSizeText { fontSizeText = digits }
+            }
             // Going from 1 label to more lowers the maximum names per label.
             .onChange(of: pickCount, clampNamesPerLabel)
             .onChange(of: slotLabels) { AppSettings.saveSlotLabels(slotLabels) }
@@ -137,6 +162,15 @@ struct SettingsView: View {
             pickCount = AppSettings.defaultPickCount
         }
         clampNamesPerLabel()
+    }
+
+    /// Saves the typed font size, clamped to the allowed range. Empty or invalid input restores the current size.
+    private func commitFontSize() {
+        if let typed = Int(fontSizeText) {
+            let range = AppSettings.fontSizeRange
+            fontSize = min(max(typed, range.lowerBound), range.upperBound)
+        }
+        fontSizeText = "\(fontSize)"
     }
 
     private func clampNamesPerLabel() {

@@ -61,6 +61,15 @@ struct SlotLabelFieldStyle: ViewModifier {
     }
 }
 
+/// Number-pad text field for a numeric setting, right-aligned like iOS Settings values.
+struct NumberFieldStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+    }
+}
+
 // MARK: - Random pick
 
 struct PickerCardStyle: ViewModifier {
@@ -190,6 +199,10 @@ extension View {
 
     func slotLabelFieldStyle() -> some View {
         modifier(SlotLabelFieldStyle())
+    }
+
+    func numberFieldStyle() -> some View {
+        modifier(NumberFieldStyle())
     }
 
     func pickerCardStyle() -> some View {

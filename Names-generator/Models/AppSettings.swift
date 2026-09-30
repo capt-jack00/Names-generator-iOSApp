@@ -16,6 +16,7 @@ enum AppSettings {
 
     static let defaultPickCount = 1
     static let defaultFontSize = 30
+    static let fontSizeRange = 10...40
     static let defaultCanRepeatNames = false
     static let defaultAutoCapitalizeNames = true
     static let defaultNamesPerLabel = 1
