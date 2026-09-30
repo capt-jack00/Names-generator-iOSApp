@@ -70,6 +70,16 @@ struct NumberFieldStyle: ViewModifier {
     }
 }
 
+/// Search text field: no capitalization or autocorrection, keyboard shows "Search".
+struct SearchInputStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+            .submitLabel(.search)
+    }
+}
+
 // MARK: - Random pick
 
 struct PickerCardStyle: ViewModifier {
@@ -203,6 +213,10 @@ extension View {
 
     func numberFieldStyle() -> some View {
         modifier(NumberFieldStyle())
+    }
+
+    func searchInputStyle() -> some View {
+        modifier(SearchInputStyle())
     }
 
     func pickerCardStyle() -> some View {

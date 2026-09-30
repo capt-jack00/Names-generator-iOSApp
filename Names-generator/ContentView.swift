@@ -65,8 +65,7 @@ struct ContentView: View {
                     }
                 }
 
-                //TODO: Add option to search names (searchbar)
-                Section("Names (\(names.count))") {
+                Section(namesHeader) {
                     if names.isEmpty {
                         ContentUnavailableView(
                             "No names yet",
@@ -74,10 +73,15 @@ struct ContentView: View {
                             description: Text("Add a name above to get started.")
                         )
                     } else {
-                        ForEach(names) { entry in
-                            NameRow(name: entry.value)
+                        SearchField(prompt: "Search names", text: $viewModel.searchText)
+                        if filteredNames.isEmpty {
+                            ContentUnavailableView.search(text: viewModel.searchText)
+                        } else {
+                            ForEach(filteredNames) { entry in
+                                NameRow(name: entry.value)
+                            }
+                            .onDelete(perform: deleteNames)
                         }
-                        .onDelete(perform: deleteNames)
                     }
                 }
             }
@@ -86,6 +90,15 @@ struct ContentView: View {
                 SettingsView(nameCount: names.count)
             }
         }
+    }
+
+    /// Search only filters the list; picking still uses all names.
+    private var filteredNames: [NameEntry] {
+        viewModel.filteredNames(names)
+    }
+
+    private var namesHeader: String {
+        viewModel.isSearching ? "Names (\(filteredNames.count) of \(names.count))" : "Names (\(names.count))"
     }
 
     private func addName() {
@@ -101,8 +114,9 @@ struct ContentView: View {
         }
     }
 
+    /// Offsets refer to the visible (filtered) rows.
     private func deleteNames(at offsets: IndexSet) {
-        viewModel.deleteNames(at: offsets, from: names, in: modelContext)
+        viewModel.deleteNames(at: offsets, from: filteredNames, in: modelContext)
     }
 }
 

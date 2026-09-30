@@ -10,11 +10,30 @@ import SwiftData
 @Observable
 final class NamesViewModel {
     var newName = ""
+    var searchText = ""
     /// Picked names grouped by label, e.g. [["Anna", "Bartek"], ["Celina", "Dawid"]].
     var pickedNames: [[String]] = []
 
     var trimmedName: String {
         newName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var isSearching: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Names starting with the search text, ignoring case and accents ("luk" finds "Łukasz").
+    /// All names when the search is empty.
+    func filteredNames(_ names: [NameEntry]) -> [NameEntry] {
+        guard isSearching else { return names }
+        let query = Self.searchKey(searchText.trimmingCharacters(in: .whitespacesAndNewlines))
+        return names.filter { Self.searchKey($0.value).hasPrefix(query) }
+    }
+
+    /// Lowercased with letters folded to ASCII. Plain diacritic-insensitive
+    /// comparison misses letters like "Ł", which have no separate accent mark.
+    private static func searchKey(_ text: String) -> String {
+        (text.applyingTransform(StringTransform("Latin-ASCII"), reverse: false) ?? text).lowercased()
     }
 
     func isDuplicate(in names: [NameEntry]) -> Bool {
