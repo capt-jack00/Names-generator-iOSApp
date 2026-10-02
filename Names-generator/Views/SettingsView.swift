@@ -62,6 +62,7 @@ struct SettingsView: View {
                 } footer: {
                     Text(pickCountFooter)
                 }
+                .compactSectionSpacing()
 
                 Section {
                     Button {
@@ -73,6 +74,7 @@ struct SettingsView: View {
                     .plainListRowStyle()
                     .disabled(nameCount == 0)
                 }
+                .compactSectionSpacing()
 
                 Section {
                     DisclosureGroup(isExpanded: $isShowingLabels) {
@@ -97,6 +99,7 @@ struct SettingsView: View {
                 } footer: {
                     Text(namesPerLabelFooter)
                 }
+                .compactSectionSpacing()
 
                 Section {
                     Button {
@@ -108,6 +111,7 @@ struct SettingsView: View {
                     .disabled(slotLabels.allSatisfy(\.isEmpty))
                     .plainListRowStyle()
                 }
+                .compactSectionSpacing()
 
                 Section {
                     Toggle("Can repeat names", isOn: $canRepeatNames)

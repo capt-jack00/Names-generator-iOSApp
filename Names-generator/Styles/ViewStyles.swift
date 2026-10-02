@@ -52,6 +52,14 @@ struct SettingsFormStyle: ViewModifier {
     }
 }
 
+/// Smaller gap around a section, e.g. a lone button row between settings sections.
+struct CompactSectionSpacingStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .listSectionSpacing(.compact)
+    }
+}
+
 /// Text field for a pick label (e.g. "Monday"), right-aligned like iOS Settings values.
 struct SlotLabelFieldStyle: ViewModifier {
     func body(content: Content) -> some View {
@@ -209,6 +217,10 @@ extension View {
 
     func slotLabelFieldStyle() -> some View {
         modifier(SlotLabelFieldStyle())
+    }
+
+    func compactSectionSpacing() -> some View {
+        modifier(CompactSectionSpacingStyle())
     }
 
     func numberFieldStyle() -> some View {
