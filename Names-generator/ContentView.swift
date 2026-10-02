@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -14,6 +15,9 @@ struct ContentView: View {
 
     @State private var viewModel = NamesViewModel()
     @State private var isShowingSettings = false
+    @State private var isChoosingImportFile = false
+    @State private var importFile: NameImportFile?
+    @State private var importError: String?
 
     @AppStorage(AppSettings.pickCountKey) private var pickCount = AppSettings.defaultPickCount
     @AppStorage(AppSettings.namesPerLabelKey) private var namesPerLabel = AppSettings.defaultNamesPerLabel
@@ -64,6 +68,14 @@ struct ContentView: View {
                             .hintTextStyle()
                     }
                 }
+                Button {
+                    isChoosingImportFile = true
+                } label: {
+                    Label("Import names", systemImage: "arrow.down.to.line.alt")
+                }
+                .primaryActionStyle()
+                .plainListRowStyle()
+                .listRowInsets(EdgeInsets())
 
                 Section(namesHeader) {
                     if names.isEmpty {
@@ -88,6 +100,17 @@ struct ContentView: View {
             .screenListStyle()
             .sheet(isPresented: $isShowingSettings) {
                 SettingsView(nameCount: names.count)
+            }
+            .fileImporter(isPresented: $isChoosingImportFile, allowedContentTypes: [.sql], onCompletion: loadImportFile)
+            .sheet(item: $importFile) { file in
+                ImportNamesView(file: file, existingNames: names) { importedNames in
+                    viewModel.importNames(importedNames, in: modelContext)
+                }
+            }
+            .alert("Can't import names", isPresented: isShowingImportError, presenting: importError) { _ in
+                Button("OK") {}
+            } message: { message in
+                Text(message)
             }
         }
     }
@@ -114,10 +137,29 @@ struct ContentView: View {
         }
     }
 
+    private var isShowingImportError: Binding<Bool> {
+        Binding(get: { importError != nil }, set: { if !$0 { importError = nil } })
+    }
+
+    private func loadImportFile(_ result: Result<URL, Error>) {
+        Task {
+            do {
+                importFile = try await NameImportFile.load(from: result.get())
+            } catch {
+                importError = error.localizedDescription
+            }
+        }
+    }
+
     /// Offsets refer to the visible (filtered) rows.
     private func deleteNames(at offsets: IndexSet) {
         viewModel.deleteNames(at: offsets, from: filteredNames, in: modelContext)
     }
+}
+
+private extension UTType {
+    /// No system type exists for .sql, so this is a dynamic type matched by the file extension.
+    static let sql = UTType(filenameExtension: "sql") ?? .plainText
 }
 
 #Preview {

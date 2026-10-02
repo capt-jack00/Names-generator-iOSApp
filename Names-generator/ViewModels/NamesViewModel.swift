@@ -51,6 +51,15 @@ final class NamesViewModel {
         newName = ""
     }
 
+    /// Adds already filtered names (see `NameImporter.importableNames`). Each gets a slightly
+    /// later date, so the list shows them newest first like names added one by one.
+    func importNames(_ importedNames: [String], in context: ModelContext) {
+        let start = Date.now
+        for (offset, name) in importedNames.enumerated() {
+            context.insert(NameEntry(value: name, createdAt: start.addingTimeInterval(Double(offset) * 0.001)))
+        }
+    }
+
     /// Uppercases the first letter of every word (split by spaces or hyphens) and
     /// leaves the rest untouched, so "anna-maria mcDonald" becomes "Anna-Maria McDonald".
     static func capitalizingWords(_ text: String) -> String {

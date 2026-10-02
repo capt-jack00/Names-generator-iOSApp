@@ -54,6 +54,7 @@ struct SettingsView: View {
                         LabeledContent("Names to pick", value: "\(pickCount)")
                     }
                     .disabled(pickCountRange == nil)
+                    
                 } footer: {
                     Text(pickCountFooter)
                 }
