@@ -21,6 +21,7 @@ struct SettingsView: View {
     @State private var slotLabels = AppSettings.loadSlotLabels()
     @State private var isShowingLabels = false
     @State private var isConfirmingClearNames = false
+    @State private var isConfirmingClearLabels = false
     /// Typed font size; saved (clamped) when the field loses focus.
     @State private var fontSizeText = ""
     @FocusState private var isFontSizeFocused: Bool
@@ -98,9 +99,8 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    // Also removes labels beyond the pick amount; the change is saved by onChange below.
                     Button {
-                        slotLabels.removeAll()
+                        isConfirmingClearLabels = true
                     } label: {
                         Label("Clear labels", systemImage: "trash")
                     }
@@ -126,6 +126,12 @@ struct SettingsView: View {
                 Button("Confirm deletion", role: .destructive, action: onClearNames)
             } message: {
                 Text("Are you sure you want to delete all your names? This action is permament and can't be undone unless you keep a copy of your names somewhere!")
+            }
+            .alert("Confirm deletion", isPresented: $isConfirmingClearLabels) {
+                // Also removes labels beyond the pick amount; the change is saved by onChange below.
+                Button("Confirm deletion", role: .destructive) { slotLabels.removeAll() }
+            } message: {
+                Text("Are you sure you want to delete all your labels? This action is permament and can't be undone unless you keep a copy of your labels somewhere!")
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
