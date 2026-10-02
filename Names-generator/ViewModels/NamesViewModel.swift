@@ -92,4 +92,12 @@ final class NamesViewModel {
             context.delete(names[index])
         }
     }
+
+    /// Deletes every name and clears the last pick, since its names no longer exist.
+    func deleteAllNames(_ names: [NameEntry], in context: ModelContext) {
+        for entry in names {
+            context.delete(entry)
+        }
+        pickedNames = []
+    }
 }

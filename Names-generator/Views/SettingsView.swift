@@ -7,6 +7,8 @@ import SwiftUI
 
 struct SettingsView: View {
     let nameCount: Int
+    /// Deletes every name; called after the user confirms.
+    var onClearNames: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
 
@@ -18,6 +20,7 @@ struct SettingsView: View {
 
     @State private var slotLabels = AppSettings.loadSlotLabels()
     @State private var isShowingLabels = false
+    @State private var isConfirmingClearNames = false
     /// Typed font size; saved (clamped) when the field loses focus.
     @State private var fontSizeText = ""
     @FocusState private var isFontSizeFocused: Bool
@@ -57,6 +60,17 @@ struct SettingsView: View {
                     
                 } footer: {
                     Text(pickCountFooter)
+                }
+
+                Section {
+                    Button {
+                        isConfirmingClearNames = true
+                    } label: {
+                        Label("Clear names", systemImage: "xmark.circle")
+                    }
+                    .primaryActionStyle()
+                    .plainListRowStyle()
+                    .disabled(nameCount == 0)
                 }
 
                 Section {
@@ -108,6 +122,11 @@ struct SettingsView: View {
                 }
             }
             .settingsFormStyle()
+            .alert("Confirm deletion", isPresented: $isConfirmingClearNames) {
+                Button("Confirm deletion", role: .destructive, action: onClearNames)
+            } message: {
+                Text("Are you sure you want to delete all your names? This action is permament and can't be undone unless you keep a copy of your names somewhere!")
+            }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

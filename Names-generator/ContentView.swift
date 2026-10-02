@@ -99,7 +99,9 @@ struct ContentView: View {
             }
             .screenListStyle()
             .sheet(isPresented: $isShowingSettings) {
-                SettingsView(nameCount: names.count)
+                SettingsView(nameCount: names.count) {
+                    viewModel.deleteAllNames(names, in: modelContext)
+                }
             }
             .fileImporter(isPresented: $isChoosingImportFile, allowedContentTypes: [.sql], onCompletion: loadImportFile)
             .sheet(item: $importFile) { file in
