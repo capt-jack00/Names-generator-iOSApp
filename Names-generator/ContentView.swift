@@ -89,10 +89,20 @@ struct ContentView: View {
                         if filteredNames.isEmpty {
                             ContentUnavailableView.search(text: viewModel.searchText)
                         } else {
-                            ForEach(filteredNames) { entry in
+                            ForEach(visibleNames) { entry in
                                 NameRow(name: entry.value)
                             }
                             .onDelete(perform: deleteNames)
+                            if hiddenNameCount > 0 {
+                                Button("Show more (+\(hiddenNameCount))", systemImage: "chevron.down") {
+                                    withAnimation { viewModel.showMoreNames() }
+                                }
+                            }
+                            if visibleNames.count > NamesViewModel.namesPageSize {
+                                Button("Show less", systemImage: "chevron.up") {
+                                    withAnimation { viewModel.showFewerNames() }
+                                }
+                            }
                         }
                     }
                 }
@@ -120,6 +130,15 @@ struct ContentView: View {
     /// Search only filters the list; picking still uses all names.
     private var filteredNames: [NameEntry] {
         viewModel.filteredNames(names)
+    }
+
+    /// Names shown in the list; the rest wait behind "Show more".
+    private var visibleNames: [NameEntry] {
+        viewModel.visibleNames(filteredNames)
+    }
+
+    private var hiddenNameCount: Int {
+        filteredNames.count - visibleNames.count
     }
 
     private var namesHeader: String {
@@ -153,9 +172,9 @@ struct ContentView: View {
         }
     }
 
-    /// Offsets refer to the visible (filtered) rows.
+    /// Offsets refer to the visible (filtered and paged) rows.
     private func deleteNames(at offsets: IndexSet) {
-        viewModel.deleteNames(at: offsets, from: filteredNames, in: modelContext)
+        viewModel.deleteNames(at: offsets, from: visibleNames, in: modelContext)
     }
 }
 

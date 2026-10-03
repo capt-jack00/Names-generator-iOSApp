@@ -10,7 +10,12 @@ import SwiftData
 @Observable
 final class NamesViewModel {
     var newName = ""
-    var searchText = ""
+    /// A new search starts from the first page of results again.
+    var searchText = "" {
+        didSet { visibleNameCount = Self.namesPageSize }
+    }
+    /// How many names the list shows; grows by `namesPageSize` with "Show more".
+    private(set) var visibleNameCount = namesPageSize
     /// Picked names grouped by label, e.g. [["Anna", "Bartek"], ["Celina", "Dawid"]].
     var pickedNames: [[String]] = []
 
@@ -34,6 +39,21 @@ final class NamesViewModel {
     /// comparison misses letters like "Ł", which have no separate accent mark.
     private static func searchKey(_ text: String) -> String {
         (text.applyingTransform(StringTransform("Latin-ASCII"), reverse: false) ?? text).lowercased()
+    }
+
+    static let namesPageSize = 10
+
+    /// The first `visibleNameCount` names; the rest are behind "Show more".
+    func visibleNames(_ names: [NameEntry]) -> [NameEntry] {
+        Array(names.prefix(visibleNameCount))
+    }
+
+    func showMoreNames() {
+        visibleNameCount += Self.namesPageSize
+    }
+
+    func showFewerNames() {
+        visibleNameCount = Self.namesPageSize
     }
 
     func isDuplicate(in names: [NameEntry]) -> Bool {
